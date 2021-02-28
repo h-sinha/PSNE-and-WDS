@@ -2,25 +2,32 @@ import numpy as np
 import sys
 import time
 
+def get_payoff(payoffs, player, offset, num_strategy):
+	l =  np.array([payoffs[x] for x in range(player, len(payoffs), offset)])
+	l = l.reshape(num_strategy)
+	return np.transpose(l)
 def read_input():
 	try:
 		num_players = int(input())
 		num_strategy = np.array(list(map(int,input().strip().split())))
-		payoffs = np.array(list(map(int,input().strip().split())))
-		n_size = num_strategy
-		n_size = np.append(n_size, num_players)
-		payoffs.resize(n_size)
+		temp_payoffs = np.array(list(map(int,input().strip().split())))
+		n_size = np.append(num_players, num_strategy)
 		# payoffs X,i,j,k,.... = payoff for player X for s1i, s2j, s3k,....
-		payoffs = np.transpose(payoffs)
+		payoffs = np.zeros(n_size)
+		num_strategy = num_strategy[::-1]
+		for i in range(num_players):
+			payoffs[i] = get_payoff(temp_payoffs, i, num_players, num_strategy)
+		num_strategy = num_strategy[::-1]
 		return num_players, num_strategy, payoffs
 	except:
 		print("Incorrect input")
 		sys.exit()
 
-start = time.time()
 num_players, num_strategy, payoffs = read_input()
-end = time.time()
-print(end-start)
+is_WDS = [set() for _ in range(num_players)]
+for i in range(num_players):
+	for x in range(num_strategy[i]):
+		is_WDS[i].add(x)
 
 PSNE = []
 best_utility = np.array(payoffs)
@@ -55,6 +62,17 @@ def compute_best_utility(cur_player, player, left_index, right_index):
 				best_utility[player][tuple(left_index)][i] = max_value
 			else:
 				best_utility[player][tuple(left_index)][i][tuple(right_index)] = max_value
+		# for WDS
+		for i in range(num_strategy[player]):
+			cur_util = 0
+			if len(left_index) == 0:
+				cur_util = payoffs[player][i][tuple(right_index)]
+			elif len(right_index) == 0:
+				cur_util = payoffs[player][tuple(left_index)][i]
+			else:
+				cur_util = payoffs[player][tuple(left_index)][i][tuple(right_index)]
+			if cur_util < max_value:
+				is_WDS[player].discard(i)
 		return
 	if player == cur_player:
 		compute_best_utility(cur_player + 1, player, left_index, right_index)
@@ -68,19 +86,9 @@ def compute_best_utility(cur_player, player, left_index, right_index):
 				right_index.append(i)
 				compute_best_utility(cur_player + 1, player, left_index, right_index)
 				right_index.pop()
-start = time.time()
 for i in range(num_players):
 	compute_best_utility(0, i, [], [])
-end = time.time()
-print(end-start)
-
-start = time.time()
 find_PSNE(0, [])
-end = time.time()
-print(end-start)
-
-
-start = time.time()
 
 # printing PSNE
 print(len(PSNE))
@@ -88,5 +96,9 @@ for v in PSNE:
 	for x in v: 
 		print(x+1, end = " ")
 	print("")
-end = time.time()
-print(end-start)
+
+for i in range(num_players):
+	print(len(is_WDS[i]), end = " ")
+	for x in is_WDS[i]:
+		print(x+1, end = " ");
+	print("")
