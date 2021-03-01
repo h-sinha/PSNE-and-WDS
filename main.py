@@ -8,6 +8,7 @@ def get_payoff(payoffs, player, offset, num_strategy):
 	return np.transpose(l)
 def read_input():
 	try:
+		input = sys.stdin.readline
 		num_players = int(input())
 		num_strategy = np.array(list(map(int,input().strip().split())))
 		temp_payoffs = np.array(list(map(int,input().strip().split())))
@@ -91,14 +92,14 @@ for i in range(num_players):
 find_PSNE(0, [])
 
 # printing PSNE
-print(len(PSNE))
-for v in PSNE:
-	for x in v: 
-		print(x+1, end = " ")
-	print("")
+sys.stdout.write(str(len(PSNE)) + "\n")
 
+for v in PSNE:
+	sys.stdout.write(" ".join(str(x+1) for x in v))
+	sys.stdout.write("\n")
+
+# WDS
 for i in range(num_players):
-	print(len(is_WDS[i]), end = " ")
-	for x in is_WDS[i]:
-		print(x+1, end = " ");
-	print("")
+	sys.stdout.write(str(len(is_WDS[i])) + " ")
+	sys.stdout.write(" ".join(str(x+1) for x in is_WDS[i]))
+	sys.stdout.write("\n")
