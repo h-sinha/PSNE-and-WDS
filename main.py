@@ -98,11 +98,12 @@ for v in PSNE:
 	sys.stdout.write(" ".join(str(x+1) for x in v))
 	sys.stdout.write("\n")
 
-# WDS
+# VWDS
 for i in range(num_players):
-	if len(is_WDS[i]) > 1:
-		sys.stdout.write("0" + "\n")
-		continue
+	# FOR WDS
+	# if len(is_WDS[i]) > 1:
+		# sys.stdout.write("0" + "\n")
+		# continue
 	sys.stdout.write(str(len(is_WDS[i])) + " ")
 	sys.stdout.write(" ".join(str(x+1) for x in is_WDS[i]))
 	sys.stdout.write("\n")
